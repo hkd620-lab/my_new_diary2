@@ -9,14 +9,35 @@ const tabs = [
 
 export default function TabBar() {
   return (
-    <nav className="tab-bar">
-      {tabs.map((tab) => (
+    <nav
+      style={{
+        position: "fixed",
+        bottom: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
+
+        width: "100%",
+        maxWidth: 420,
+
+        display: "flex",
+        borderTop: "1px solid #ddd",
+        background: "#fff",
+        zIndex: 1000,
+      }}
+    >
+      {tabs.map(tab => (
         <NavLink
           key={tab.path}
           to={tab.path}
-          className={({ isActive }) =>
-            isActive ? "tab-item active" : "tab-item"
-          }
+          style={({ isActive }) => ({
+            flex: 1,
+            textAlign: "center",
+            padding: "12px 0",
+            textDecoration: "none",
+            fontSize: 13,
+            fontWeight: isActive ? 700 : 400,
+            color: isActive ? "#2c7be5" : "#666",
+          })}
         >
           {tab.label}
         </NavLink>

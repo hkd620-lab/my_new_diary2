@@ -1,18 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
 import App from "./App";
-import { AuthProvider } from "./contexts/AuthContext";
-import "./styles/global.css";
+import "./App.css";   // ✅ 이 한 줄이 빠져 있었음
 
-ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
+    <App />
   </React.StrictMode>
 );

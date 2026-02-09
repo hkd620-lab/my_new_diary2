@@ -1,0 +1,35 @@
+import { useState } from "react";
+
+const WEATHER = ["맑음", "흐림", "비", "눈"];
+const MOOD = ["아주좋음", "좋음", "보통", "힘듦"];
+
+export default function WriteStart() {
+  const [weather, setWeather] = useState<string | null>(null);
+  const [mood, setMood] = useState<string | null>(null);
+
+  return (
+    <div style={{ padding: 16 }}>
+      <h3>날씨</h3>
+      {WEATHER.map(v => (
+        <button
+          key={v}
+          className={`select-btn ${weather === v ? "active" : ""}`}
+          onClick={() => setWeather(v)}
+        >
+          {v}
+        </button>
+      ))}
+
+      <h3 style={{ marginTop: 20 }}>기분</h3>
+      {MOOD.map(v => (
+        <button
+          key={v}
+          className={`select-btn ${mood === v ? "active" : ""}`}
+          onClick={() => setMood(v)}
+        >
+          {v}
+        </button>
+      ))}
+    </div>
+  );
+}
