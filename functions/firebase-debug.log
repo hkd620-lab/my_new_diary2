@@ -1,0 +1,125 @@
+[debug] [2026-02-10T05:46:45.240Z] ----------------------------------------------------------------------
+[debug] [2026-02-10T05:46:45.242Z] Command:       /opt/homebrew/Cellar/node/25.3.0/bin/node /opt/homebrew/bin/firebase emulators:start --only functions
+[debug] [2026-02-10T05:46:45.243Z] CLI Version:   15.1.0
+[debug] [2026-02-10T05:46:45.243Z] Platform:      darwin
+[debug] [2026-02-10T05:46:45.243Z] Node Version:  v25.3.0
+[debug] [2026-02-10T05:46:45.243Z] Time:          Tue Feb 10 2026 14:46:45 GMT+0900 (한국 표준시)
+[debug] [2026-02-10T05:46:45.243Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-10T05:46:45.754Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-10T05:46:45.754Z] > authorizing via signed-in user (hkd620@gmail.com)
+[info] i  emulators: Starting emulators: functions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions"}}
+[debug] [2026-02-10T05:46:46.059Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2026-02-10T05:46:46.059Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2026-02-10T05:46:46.063Z] Emulator locator file path: /var/folders/1q/lcwh77hn1wb1tz_9m9llwq7c0000gn/T/hub-my-new-diary2.json
+[debug] [2026-02-10T05:46:46.063Z] [hub] writing locator at /var/folders/1q/lcwh77hn1wb1tz_9m9llwq7c0000gn/T/hub-my-new-diary2.json
+[debug] [2026-02-10T05:46:46.368Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2026-02-10T05:46:46.368Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2026-02-10T05:46:46.369Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2026-02-10T05:46:46.369Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] ⚠  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: apphosting, auth, firestore, database, hosting, pubsub, storage, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mapphosting, auth, firestore, database, hosting, pubsub, storage, dataconnect\u001b[22m"}}
+[debug] [2026-02-10T05:46:46.376Z] defaultcredentials: writing to file /Users/heogyeongdae/.config/firebase/hkd620_gmail_com_application_default_credentials.json
+[debug] [2026-02-10T05:46:46.377Z] Setting GAC to /Users/heogyeongdae/.config/firebase/hkd620_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to /Users/heogyeongdae/.config/firebase/hkd620_gmail_com_application_default_credentials.json"}}
+[debug] [2026-02-10T05:46:46.378Z] Checked if tokens are valid: true, expires at: 1770704096715
+[debug] [2026-02-10T05:46:46.378Z] Checked if tokens are valid: true, expires at: 1770704096715
+[debug] [2026-02-10T05:46:46.379Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/my-new-diary2/adminSdkConfig [none]
+[debug] [2026-02-10T05:46:46.823Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/my-new-diary2/adminSdkConfig 200
+[debug] [2026-02-10T05:46:46.823Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/my-new-diary2/adminSdkConfig {"projectId":"my-new-diary2","storageBucket":"my-new-diary2.firebasestorage.app"}
+[info] i  functions: Watching "/Users/heogyeongdae/my_new_diary2/functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"/Users/heogyeongdae/my_new_diary2/functions\" for Cloud Functions..."}}
+[debug] [2026-02-10T05:46:46.849Z] Validating nodejs source
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] ⚠  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2026-02-10T05:46:47.246Z] > [functions] package.json contents: {
+  "name": "functions",
+  "private": true,
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.4",
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^4.0.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+[debug] [2026-02-10T05:46:47.246Z] Building nodejs source
+[debug] [2026-02-10T05:46:47.246Z] Failed to find version of module node: reached end of search path /Users/heogyeongdae/my_new_diary2/functions/node_modules
+[warn] ⚠  functions: Your requested "node" version "18" doesn't match your global version "25". Using node@25 from host. 
+[info] i  functions: Loaded environment variables from .env. 
+[info] i  functions: You are using a version of firebase-functions SDK (4.9.0) that does not have support for the newest Firebase Extensions features. Please update firebase-functions SDK to >=5.1.0 to use them correctly 
+[debug] [2026-02-10T05:46:47.248Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-02-10T05:46:47.251Z] Found firebase-functions binary at '/Users/heogyeongdae/my_new_diary2/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8737
+
+[info] [dotenv@17.2.4] injecting env (1) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+[debug] [2026-02-10T05:46:47.595Z] Got response from /__/functions.yaml {"endpoints":{"generateEssayQuestion":{"platform":"gcfv1","labels":{},"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"callableTrigger":{},"entryPoint":"generateEssayQuestion"}},"specVersion":"v1alpha1","requiredAPIs":[]}
+[info] ✔  functions: Loaded functions definitions from source: generateEssayQuestion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: generateEssayQuestion."}}
+[info] ✔  functions[us-central1-generateEssayQuestion]: http function initialized (http://127.0.0.1:5001/my-new-diary2/us-central1/generateEssayQuestion). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/my-new-diary2/us-central1/generateEssayQuestion)."}}
+[debug] [2026-02-10T05:46:51.623Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌───────────┬────────────────┬─────────────────────────────────┐
+│ Emulator  │ Host:Port      │ View in Emulator UI             │
+├───────────┼────────────────┼─────────────────────────────────┤
+│ Functions │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions │
+└───────────┴────────────────┴─────────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[debug] [2026-02-10T08:27:02.502Z] File /Users/heogyeongdae/my_new_diary2/functions/src/index.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/heogyeongdae/my_new_diary2/functions/src/index.ts changed, reloading triggers"}}
+[debug] [2026-02-10T08:27:03.506Z] Validating nodejs source
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] ⚠  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2026-02-10T08:27:04.036Z] > [functions] package.json contents: {
+  "name": "functions",
+  "private": true,
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.4",
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^4.0.0",
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+[debug] [2026-02-10T08:27:04.036Z] Building nodejs source
+[debug] [2026-02-10T08:27:04.036Z] Failed to find version of module node: reached end of search path /Users/heogyeongdae/my_new_diary2/functions/node_modules
+[warn] ⚠  functions: Your requested "node" version "18" doesn't match your global version "25". Using node@25 from host. 
+[info] i  functions: Loaded environment variables from .env. 
+[info] i  functions: You are using a version of firebase-functions SDK (4.9.0) that does not have support for the newest Firebase Extensions features. Please update firebase-functions SDK to >=5.1.0 to use them correctly 
+[debug] [2026-02-10T08:27:04.038Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-02-10T08:27:04.038Z] Found firebase-functions binary at '/Users/heogyeongdae/my_new_diary2/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8291
+
+[info] [dotenv@17.2.4] injecting env (1) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+[debug] [2026-02-10T08:27:04.463Z] Got response from /__/functions.yaml {"endpoints":{"generateEssayQuestion":{"platform":"gcfv1","labels":{},"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"callableTrigger":{},"entryPoint":"generateEssayQuestion"}},"specVersion":"v1alpha1","requiredAPIs":[]}
+[info] ✔  functions: Loaded functions definitions from source: generateEssayQuestion. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: generateEssayQuestion."}}

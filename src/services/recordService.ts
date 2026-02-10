@@ -12,11 +12,14 @@ import { getAuth } from "firebase/auth";
 import { db } from "./firebase";
 
 /**
- * 하루 기록 저장 (날씨 / 기분 / 섹션)
+ * 하루 기록 저장 (날씨 / 기온 / 기분 / 섹션)
+ * - uid + date 기준으로 하루 1문서 유지
+ * - 기존 문서가 있으면 sections 병합
  */
 export async function saveDailyRecord(data: {
   date: string;
   weather: string;
+  temperature: string;
   mood: string;
   sections: Record<string, string>;
 }) {
@@ -35,11 +38,14 @@ export async function saveDailyRecord(data: {
   if (!snap.empty) {
     // 기존 문서 업데이트
     const ref = doc(db, "records", snap.docs[0].id);
+    const prev = snap.docs[0].data();
+
     await updateDoc(ref, {
       weather: data.weather,
+      temperature: data.temperature,
       mood: data.mood,
       sections: {
-        ...snap.docs[0].data().sections,
+        ...(prev.sections ?? {}),
         ...data.sections,
       },
       updatedAt: Timestamp.now(),
@@ -50,6 +56,7 @@ export async function saveDailyRecord(data: {
       uid: user.uid,
       date: data.date,
       weather: data.weather,
+      temperature: data.temperature,
       mood: data.mood,
       sections: data.sections,
       createdAt: Timestamp.now(),

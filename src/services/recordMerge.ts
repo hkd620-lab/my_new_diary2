@@ -1,6 +1,7 @@
 type RecordItem = {
   date: string;
   weather: string;
+  temperature: string;
   mood: string;
   sections: Record<string, string>;
   createdAt: any;
@@ -21,6 +22,7 @@ export function mergeRecordsByDate(records: RecordItem[]) {
   return {
     date: latest.date,
     weather: latest.weather,
+    temperature: latest.temperature,
     mood: latest.mood,
     sections: mergedSections,
   };

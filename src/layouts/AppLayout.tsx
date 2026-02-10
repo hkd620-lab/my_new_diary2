@@ -5,6 +5,7 @@ import Write from "../pages/Write";
 import Library from "../pages/Library";
 import Stats from "../pages/Stats";
 import Settings from "../pages/Settings";
+import Essay from "../pages/Essay"; // ✅ 추가
 
 export default function AppLayout() {
   return (
@@ -23,6 +24,7 @@ export default function AppLayout() {
         <Routes>
           <Route path="/" element={<Write />} />
           <Route path="/library" element={<Library />} />
+          <Route path="/essay" element={<Essay />} /> {/* ✅ 추가 */}
           <Route path="/stats" element={<Stats />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>

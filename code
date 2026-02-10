@@ -1,0 +1,34 @@
+/**
+ * SAYU 주간 요약 생성 서비스
+ * - 입력: groupWeeklySections 결과
+ * - 출력: 1문단 한국어 요약
+ * - AI 호출은 여기서만 담당
+ */
+
+type GroupedSections = Record<
+  string,
+  { date: string; value: string }[]
+>;
+
+export function buildWeeklySummaryPrompt(
+  grouped: GroupedSections
+) {
+  let text = "다음은 한 사람의 일주일 기록입니다.\n\n";
+
+  Object.entries(grouped).forEach(([key, items]) => {
+    text += `[${key}]\n`;
+    items.forEach(i => {
+      text += `- (${i.date}) ${i.value}\n`;
+    });
+    text += "\n";
+  });
+
+  text += `
+위 기록을 바탕으로,
+비판 없이 따뜻한 시선으로
+한국어 1문단 요약문을 작성하세요.
+조언이나 해결책은 제시하지 마세요.
+`;
+
+  return text;
+}

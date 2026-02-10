@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 const tabs = [
   { path: "/", label: "기록" },
   { path: "/library", label: "서재" },
+  { path: "/sayu", label: "SAYU" }, // ✨ 완성된 에세이 보관소
   { path: "/stats", label: "통계" },
   { path: "/settings", label: "설정" },
 ];
@@ -37,6 +38,7 @@ export default function TabBar() {
             fontSize: 13,
             fontWeight: isActive ? 700 : 400,
             color: isActive ? "#2c7be5" : "#666",
+            letterSpacing: tab.label === "SAYU" ? 0.5 : 0,
           })}
         >
           {tab.label}
