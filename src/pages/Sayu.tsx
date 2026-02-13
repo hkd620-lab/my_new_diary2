@@ -1,112 +1,205 @@
-import { useEffect, useState } from "react";
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  getDocs,
-} from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, query, where, orderBy, getDocs, addDoc, Timestamp } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
 import { db } from "../services/firebase";
 
-type EssayItem = {
-  id: string;
+const DEV_MODE = true; // 개발 모드
+
+type RecordDoc = {
   date: string;
-  finalEssay: string;
+  weather?: string;
+  temperature?: string;
+  mood?: string;
+  sections?: Record<string, string>;
 };
 
 export default function Sayu() {
   const auth = getAuth();
-  const navigate = useNavigate();
-  const [essays, setEssays] = useState<EssayItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [canGenerate, setCanGenerate] = useState(false);
+  const [lastGenerated, setLastGenerated] = useState<Date | null>(null);
+  const [essay, setEssay] = useState("");
+  const [records, setRecords] = useState<RecordDoc[]>([]);
 
   useEffect(() => {
-    const loadEssays = async () => {
-      const user = auth.currentUser;
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+    checkEligibility();
+    fetchLast7Days();
+  }, []);
 
+  // 168시간(7일) 제한 확인
+  async function checkEligibility() {
+    if (DEV_MODE) {
+      setCanGenerate(true);
+      return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
       const q = query(
         collection(db, "essays"),
         where("uid", "==", user.uid),
+        orderBy("createdAt", "desc")
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        setCanGenerate(true);
+        return;
+      }
+
+      const lastDoc = snap.docs[0];
+      const lastCreated = lastDoc.data().createdAt?.toDate();
+      setLastGenerated(lastCreated);
+
+      const now = new Date();
+      const diff = now.getTime() - lastCreated.getTime();
+      const hours = diff / (1000 * 60 * 60);
+
+      if (hours >= 168) {
+        setCanGenerate(true);
+      } else {
+        setCanGenerate(false);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // 최근 7일 기록 가져오기
+  async function fetchLast7Days() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const dateString = sevenDaysAgo.toISOString().split("T")[0];
+
+      const q = query(
+        collection(db, "records"),
+        where("uid", "==", user.uid),
+        where("date", ">=", dateString),
         orderBy("date", "desc")
       );
 
       const snap = await getDocs(q);
+      const list = snap.docs.map((doc) => doc.data()) as RecordDoc[];
+      setRecords(list);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-      const list: EssayItem[] = snap.docs
-        .map(doc => ({
-          id: doc.id,
-          ...(doc.data() as Omit<EssayItem, "id">),
-        }))
-        .filter(item => item.finalEssay && item.finalEssay.trim().length > 0);
+  // SAYU 생성
+  async function generateSayu() {
+    if (records.length === 0) {
+      alert("최근 7일간 기록이 없습니다.");
+      return;
+    }
 
-      setEssays(list);
+    setLoading(true);
+
+    try {
+      const tempEssay = `지난 일주일을 돌이켜본다.
+
+${records.length}개의 기록이 쌓였다. 
+날씨는 ${records[0]?.weather || "기록 없음"}이었고, 
+기분은 ${records[0]?.mood || "기록 없음"}이었다.
+
+아직 AI 연결 전이므로 임시 텍스트입니다.
+Gemini API 연결 후 실제 수필이 생성됩니다.`;
+
+      setEssay(tempEssay);
+
+      const user = auth.currentUser;
+      if (user) {
+        await addDoc(collection(db, "essays"), {
+          uid: user.uid,
+          content: tempEssay,
+          createdAt: Timestamp.now(),
+        });
+      }
+
+      if (!DEV_MODE) {
+        setCanGenerate(false);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("생성 중 오류가 발생했습니다.");
+    } finally {
       setLoading(false);
-    };
-
-    loadEssays();
-  }, [auth]);
-
-  if (loading) {
-    return <div style={{ padding: 16 }}>불러오는 중…</div>;
+    }
   }
 
   return (
-    <div style={{ padding: 16 }}>
-      <h1>사유 (SAYU)</h1>
-      <p style={{ color: "#64748b", marginBottom: 16 }}>
-        글이 된 생각들이 머무는 곳
-      </p>
+    <div
+      style={{
+        padding: 24,
+        maxWidth: 420,
+        margin: "0 auto",
+        fontFamily: "serif",
+      }}
+    >
+      <h2 style={{ marginBottom: 20, fontSize: 22, fontWeight: 600 }}>
+        SAYU
+      </h2>
 
-      {essays.length === 0 && (
-        <div style={{ color: "#94a3b8" }}>
-          아직 완성된 에세이가 없습니다.
+      <div style={{ marginBottom: 20, fontSize: 14, color: "#666" }}>
+        최근 7일간 기록: {records.length}개
+      </div>
+
+      {!DEV_MODE && !canGenerate && lastGenerated && (
+        <div
+          style={{
+            padding: 16,
+            background: "#FFF3CD",
+            borderRadius: 10,
+            marginBottom: 20,
+            fontSize: 14,
+          }}
+        >
+          다음 생성 가능 시간:{" "}
+          {new Date(
+            lastGenerated.getTime() + 168 * 60 * 60 * 1000
+          ).toLocaleString("ko-KR")}
         </div>
       )}
 
-      {essays.map(item => {
-        const preview =
-          item.finalEssay.split("\n").find(line => line.trim()) ?? "";
+      <button
+        onClick={generateSayu}
+        disabled={loading}
+        style={{
+          width: "100%",
+          padding: "14px 0",
+          background: !loading ? "#2C3E50" : "#ccc",
+          color: "#fff",
+          border: "none",
+          borderRadius: 10,
+          cursor: !loading ? "pointer" : "not-allowed",
+          fontSize: 16,
+          fontWeight: 600,
+          marginBottom: 20,
+        }}
+      >
+        {loading ? "사유 생성 중..." : "사유 생성"}
+      </button>
 
-        return (
-          <div
-            key={item.id}
-            onClick={() =>
-              navigate("/essay", { state: { date: item.date } })
-            }
-            style={{
-              padding: 14,
-              marginBottom: 12,
-              borderRadius: 10,
-              border: "1px solid #e2e8f0",
-              cursor: "pointer",
-              background: "#fff",
-            }}
-          >
-            <div style={{ fontSize: 13, color: "#64748b" }}>
-              {item.date}
-            </div>
-
-            <div
-              style={{
-                marginTop: 6,
-                fontSize: 15,
-                lineHeight: 1.6,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {preview}
-            </div>
-          </div>
-        );
-      })}
+      {essay && (
+        <div
+          style={{
+            padding: 20,
+            background: "#fff",
+            borderRadius: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            lineHeight: 1.8,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {essay}
+        </div>
+      )}
     </div>
   );
 }
