@@ -10,8 +10,6 @@ const MOOD = ["아주 좋음", "좋음", "보통", "우울함", "힘듦"];
 const SECTIONS = ["보람", "자랑", "아쉬움", "감사", "여백"];
 
 export default function Write() {
-  console.log("🔥 NEW WRITE FILE LOADED");
-
   const navigate = useNavigate();
   const auth = getAuth();
 
@@ -47,8 +45,6 @@ export default function Write() {
   };
 
   const handleSaveToFirestore = async () => {
-    console.log("저장 버튼 클릭됨");
-
     const user = auth.currentUser;
     if (!user) {
       alert("로그인이 필요합니다.");
@@ -70,7 +66,6 @@ export default function Write() {
         createdAt: serverTimestamp(),
       });
 
-      console.log("Firestore 저장 완료");
       navigate("/library");
     } catch (error) {
       console.error("저장 실패:", error);
@@ -182,17 +177,29 @@ export default function Write() {
             alignItems: "center",
           }}
         >
-          <div style={{ background: "#fff", padding: 20, width: 320 }}>
+          <div style={{ background: "#fff", padding: 20, width: 320, borderRadius: 12 }}>
             <div style={{ fontWeight: 800, marginBottom: 10 }}>
               {activeSection} 기록
             </div>
             <textarea
               value={popupText}
               onChange={(e) => setPopupText(e.target.value)}
-              style={{ width: "100%", height: 100 }}
+              style={{ width: "100%", height: 100, borderRadius: 8, border: "1px solid #ccc", padding: 8 }}
             />
             <div style={{ marginTop: 12, textAlign: "right" }}>
-              <button onClick={saveSection}>저장</button>
+              <button
+                onClick={saveSection}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: "#2C3E50",
+                  color: "#fff",
+                  cursor: "pointer"
+                }}
+              >
+                저장
+              </button>
             </div>
           </div>
         </div>

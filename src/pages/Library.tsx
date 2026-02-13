@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { db } from "../services/firebase";
 
@@ -17,157 +12,131 @@ type RecordDoc = {
   sections?: Record<string, string>;
 };
 
-const SECTION_ORDER = ["보람", "자랑", "아쉬움", "감사", "여백"];
-
-function formatDate(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
-
 export default function Library() {
   const auth = getAuth();
-
-  const today = formatDate(new Date());
-  const yesterday = formatDate(new Date(Date.now() - 86400000));
-
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [record, setRecord] = useState<RecordDoc | null>(null);
+  const [records, setRecords] = useState<RecordDoc[]>([]);
   const [loading, setLoading] = useState(true);
-
-  async function fetchByDate(date: string) {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    setLoading(true);
-
-    try {
-      const q = query(
-        collection(db, "records"),
-        where("uid", "==", user.uid),
-        where("date", "==", date)
-      );
-
-      const snap = await getDocs(q);
-
-      if (!snap.empty) {
-        const doc0 = snap.docs[0];
-        const data = doc0.data();
-
-        setRecord({
-          id: doc0.id,
-          date: data.date,
-          weather: data.weather,
-          temperature: data.temperature,
-          mood: data.mood,
-          sections: data.sections,
-        });
-      } else {
-        setRecord(null);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [filter, setFilter] = useState<"today" | "yesterday" | "custom">("today");
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   useEffect(() => {
-    fetchByDate(selectedDate);
-  }, [selectedDate]);
+    async function fetch() {
+      const user = auth.currentUser;
+      if (!user) return;
+      try {
+        const q = query(
+          collection(db, "records"),
+          where("uid", "==", user.uid),
+          orderBy("createdAt", "desc")
+        );
+        const snap = await getDocs(q);
+        const list = snap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as RecordDoc[];
+        setRecords(list);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetch();
+  }, []);
 
-  const pillStyle = (active: boolean): React.CSSProperties => ({
-    padding: "8px 18px",
-    borderRadius: 30,
-    border: active ? "1px solid #2C3E50" : "1px solid #ddd",
-    background: active ? "#2C3E50" : "#ffffff",
-    color: active ? "#ffffff" : "#2C3E50",
-    fontSize: 13,
-    cursor: "pointer",
+  const today = new Date().toISOString().split("T")[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+
+  const filteredRecords = records.filter((r) => {
+    if (filter === "today") return r.date === today;
+    if (filter === "yesterday") return r.date === yesterday;
+    if (filter === "custom" && selectedDate) return r.date === selectedDate;
+    return false;
   });
 
+  if (loading) return <div style={{ padding: 20 }}>불러오는 중...</div>;
+
   return (
-    <div
-      style={{
-        paddingTop: 40,
-        paddingLeft: 20,
-        paddingRight: 20,
-        paddingBottom: 40,
-        maxWidth: 420,
-        margin: "0 auto",
-        fontFamily: "serif",
-        background: "#F7F6F3",
-        minHeight: "100vh",
-      }}
-    >
-      {/* 날짜 선택 */}
-      <div
-        style={{
-          background: "#ffffff",
-          padding: 18,
-          borderRadius: 20,
-          marginBottom: 24,
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              style={pillStyle(selectedDate === today)}
-              onClick={() => setSelectedDate(today)}
-            >
-              오늘
-            </button>
-
-            <button
-              style={pillStyle(selectedDate === yesterday)}
-              onClick={() => setSelectedDate(yesterday)}
-            >
-              어제
-            </button>
-          </div>
-
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {loading && <div>불러오는 중...</div>}
-
-      {!loading && record && (
-        <div
+    <div style={{ padding: 20, maxWidth: 420, margin: "0 auto" }}>
+      <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+        <button
+          onClick={() => setFilter("today")}
           style={{
-            background: "#ffffff",
-            padding: 24,
-            borderRadius: 20,
+            flex: 1,
+            padding: "12px 0",
+            background: filter === "today" ? "#333" : "#fff",
+            color: filter === "today" ? "#fff" : "#333",
+            border: "1px solid #ddd",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontSize: 15,
           }}
         >
-          <h3>{record.date}</h3>
+          오늘
+        </button>
+        <button
+          onClick={() => setFilter("yesterday")}
+          style={{
+            flex: 1,
+            padding: "12px 0",
+            background: filter === "yesterday" ? "#333" : "#fff",
+            color: filter === "yesterday" ? "#fff" : "#333",
+            border: "1px solid #ddd",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontSize: 15,
+          }}
+        >
+          어제
+        </button>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => {
+            setSelectedDate(e.target.value);
+            setFilter("custom");
+          }}
+          style={{
+            flex: 1,
+            padding: "12px 8px",
+            border: "1px solid #ddd",
+            borderRadius: 8,
+            fontSize: 15,
+            cursor: "pointer",
+          }}
+        />
+      </div>
 
-          <div style={{ marginTop: 8, fontSize: 14 }}>
-            날씨: {record.weather} · 체감: {record.temperature} · 기분: {record.mood}
-          </div>
-
-          <hr style={{ margin: "16px 0" }} />
-
-          {record.sections &&
-            SECTION_ORDER.map((key) => {
-              const value = record.sections?.[key];
-              if (!value) return null;
-
-              return (
-                <div key={key} style={{ marginBottom: 18 }}>
-                  <div style={{ fontWeight: 700, marginBottom: 6 }}>
-                    {key}
-                  </div>
-                  <div style={{ lineHeight: 1.7 }}>
-                    {value}
-                  </div>
-                </div>
-              );
-            })}
+      {filteredRecords.length === 0 && (
+        <div style={{ textAlign: "center", padding: 40, color: "#999" }}>
+          이 날의 기록이 없습니다.
         </div>
       )}
+
+      {filteredRecords.map((r) => (
+        <div
+          key={r.id}
+          style={{
+            marginBottom: 20,
+            padding: 16,
+            background: "#fff",
+            borderRadius: 12,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+          }}
+        >
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>{r.date}</h3>
+          <div style={{ fontSize: 14, marginTop: 8, color: "#666" }}>
+            {r.weather} · {r.temperature} · {r.mood}
+          </div>
+          <hr style={{ margin: "12px 0", border: "none", borderTop: "1px solid #eee" }} />
+          {r.sections &&
+            Object.entries(r.sections).map(([k, v]) => (
+              <div key={k} style={{ marginBottom: 10, fontSize: 14 }}>
+                <strong>{k}</strong>: {v}
+              </div>
+            ))}
+        </div>
+      ))}
     </div>
   );
 }
