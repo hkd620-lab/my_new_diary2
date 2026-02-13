@@ -1,225 +1,186 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { saveDailyRecord } from "../services/recordService";
-import SectionWriteModal from "../components/SectionWriteModal";
 
-/**
- * 섹션 정의 (순서 중요)
- * - 여백은 자유 메모 성격을 드러내기 위해 라벨 강화
- */
-const SECTIONS = [
-  { key: "achievement", label: "보람 있었던 일" },
-  { key: "pride", label: "자랑하고 싶은 일" },
-  { key: "impression", label: "마음에 남은 일" },
-  { key: "regret", label: "아쉬웠던 일" },
-  { key: "gratitude", label: "감사한 일" },
-  { key: "void", label: "여백 · 자유 메모" }, // ✅ 4️⃣ 적용
-];
-
-const TEMPERATURES = [
-  "매우 더움",
-  "더움",
-  "푸근함",
-  "쌀쌀함",
-  "매서움",
-];
+const WEATHER = ["맑음", "흐림", "비", "눈", "황사", "안개"];
+const TEMPERATURE = ["매우 더움", "더움", "따뜻함", "선선함", "쌀쌀함", "매우 추움"];
+const MOOD = ["아주 좋음", "좋음", "보통", "우울함", "힘듦"];
+const SECTIONS = ["보람", "자랑", "아쉬움", "감사", "여백"];
 
 export default function Write() {
   const navigate = useNavigate();
 
-  const [weather, setWeather] = useState<string | null>(null);
-  const [temperature, setTemperature] = useState<string | null>(null);
-  const [mood, setMood] = useState<string | null>(null);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(
+    now.getMonth() + 1
+  ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
-  const [sections, setSections] = useState<Record<string, string>>({});
-  const [activeSection, setActiveSection] = useState<{
-    key: string;
-    label: string;
-  } | null>(null);
+  const [selectedWeather, setSelectedWeather] = useState("");
+  const [selectedTemp, setSelectedTemp] = useState("");
+  const [selectedMood, setSelectedMood] = useState("");
+  const [sectionTexts, setSectionTexts] = useState<Record<string, string>>({});
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [popupText, setPopupText] = useState("");
 
-  const [saving, setSaving] = useState(false);
+  const hasContent = Object.values(sectionTexts).some(
+    (v) => v && v.trim().length > 0
+  );
 
-  // ✅ 한국 날짜 YYYY-MM-DD
-  const today = new Date().toLocaleDateString("sv-SE");
+  const openPopup = (section: string) => {
+    setActiveSection(section);
+    setPopupText(sectionTexts[section] || "");
+  };
 
-  /** 다음 미작성 섹션 찾기 */
-  const openNextSection = (currentKey: string) => {
-    const idx = SECTIONS.findIndex(s => s.key === currentKey);
-    if (idx === -1) return;
-
-    for (let i = idx + 1; i < SECTIONS.length; i++) {
-      const next = SECTIONS[i];
-      if (!sections[next.key]) {
-        setActiveSection(next);
-        return;
-      }
-    }
+  const saveSection = () => {
+    if (!activeSection) return;
+    setSectionTexts({
+      ...sectionTexts,
+      [activeSection]: popupText,
+    });
     setActiveSection(null);
   };
 
-  const onSave = async () => {
-    if (!canSave) return;
+  const buttonStyle = (active: boolean) => ({
+    padding: "8px 14px",
+    borderRadius: 14,
+    border: "1px solid #dcdcdc",
+    background: active ? "#2C3E50" : "#fff",
+    color: active ? "#fff" : "#1F1F1F",
+    cursor: "pointer",
+    whiteSpace: "nowrap" as const,
+    fontSize: 13,
+    transition: "all 0.2s ease",
+  });
 
-    setSaving(true);
-    try {
-      await saveDailyRecord({
-        date: today,
-        weather: weather!,
-        temperature: temperature!,
-        mood: mood!,
-        sections,
-      });
-      navigate("/library", { replace: true });
-    } finally {
-      setSaving(false);
-    }
+  const sectionTitleStyle = {
+    fontSize: 15,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    marginBottom: 6,
+    color: "#000000",
+    fontFamily: "serif",
   };
 
-  /** ✅ 섹션 1개 이상 작성 여부 */
-  const hasAnySection = Object.values(sections).some(
-    v => v && v.trim() !== ""
-  );
-
-  /** ✅ 저장 가능 여부 */
-  const canSave =
-    Boolean(weather) &&
-    Boolean(temperature) &&
-    Boolean(mood) &&
-    hasAnySection &&
-    !saving;
-
-  /** ✅ 모든 섹션 완료 여부 */
-  const allSectionsDone = SECTIONS.every(s => sections[s.key]);
+  const unifiedDivider = {
+    width: 120,
+    height: 2,
+    background: "#2C3E50",
+    marginBottom: 14,
+  };
 
   return (
-    <div style={{ padding: 16 }}>
-      <h4>날씨</h4>
-      {["맑음", "흐림", "비", "눈"].map(v => (
-        <button
-          key={v}
-          className={`select-btn ${weather === v ? "active" : ""}`}
-          onClick={() => setWeather(v)}
-        >
-          {v}
-        </button>
-      ))}
+    <div style={{ padding: "22px 24px 12px 30px", maxWidth: 420, margin: "0 auto", fontFamily: "serif" }}>
+      <h2 style={{ marginBottom: 28, fontSize: 20, fontWeight: 600, letterSpacing: "0.08em" }}>
+        HARU {today}
+      </h2>
 
-      <h4 style={{ marginTop: 20 }}>기온</h4>
-      {TEMPERATURES.map(v => (
-        <button
-          key={v}
-          className={`select-btn ${temperature === v ? "active" : ""}`}
-          onClick={() => setTemperature(v)}
-        >
-          {v}
-        </button>
-      ))}
-
-      <h4 style={{ marginTop: 20 }}>기분</h4>
-      {["아주좋음", "좋음", "보통", "힘듦"].map(v => (
-        <button
-          key={v}
-          className={`select-btn ${mood === v ? "active" : ""}`}
-          onClick={() => setMood(v)}
-        >
-          {v}
-        </button>
-      ))}
-
-      <h4 style={{ marginTop: 24 }}>기록할 섹션</h4>
-
-      {SECTIONS.map(s => {
-        const done = Boolean(sections[s.key]);
-
-        return (
-          <button
-            key={s.key}
-            onClick={() => setActiveSection(s)}
-            style={{
-              display: "block",
-              width: "100%",
-              textAlign: "left",
-              marginBottom: 8,
-              padding: "10px 12px",
-              borderRadius: 10,
-              border: done ? "2px solid #2c7be5" : "1px solid #ccc",
-              background: done ? "#eef4ff" : "#fff",
-              fontWeight: 600,
-            }}
-          >
-            {done ? "✔ " : ""}
-            {s.label}
-          </button>
-        );
-      })}
-
-      {/* ✅ 4️⃣ 여백 섹션 역할 안내 */}
-      {sections.void && (
-        <div
-          style={{
-            marginTop: 4,
-            marginBottom: 12,
-            fontSize: 13,
-            color: "#666",
-            paddingLeft: 4,
-          }}
-        >
-          여백은 형식 없이 생각을 남기는 공간입니다.
+      <div style={{ marginBottom: 24 }}>
+        <div style={sectionTitleStyle}>날씨</div>
+        <div style={unifiedDivider} />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {WEATHER.map((w) => (
+            <button key={w} onClick={() => setSelectedWeather(w)} style={buttonStyle(selectedWeather === w)}>
+              {w}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
-      {/* ✅ 2️⃣ 모든 섹션 완료 안내 */}
-      {allSectionsDone && (
-        <div
-          style={{
-            marginTop: 16,
-            padding: "12px",
-            borderRadius: 10,
-            background: "#f6f9ff",
-            color: "#2c7be5",
-            fontSize: 14,
-            fontWeight: 600,
-          }}
-        >
-          오늘 기록이 거의 완성됐어요. 저장해도 좋아요.
+      <div style={{ marginBottom: 24 }}>
+        <div style={sectionTitleStyle}>체감</div>
+        <div style={unifiedDivider} />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {TEMPERATURE.map((t) => (
+            <button key={t} onClick={() => setSelectedTemp(t)} style={buttonStyle(selectedTemp === t)}>
+              {t}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
-      {/* ✅ 3️⃣ 저장 버튼 (활성 조건 적용) */}
-      <button
-        onClick={onSave}
-        disabled={!canSave}
-        style={{
-          marginTop: 20,
-          width: "100%",
-          padding: "12px 0",
-          borderRadius: 10,
-          border: "none",
-          background: canSave ? "#2c7be5" : "#cfd8e3",
-          color: "#fff",
-          fontSize: 16,
-          fontWeight: 700,
-          cursor: canSave ? "pointer" : "not-allowed",
-        }}
-      >
-        {saving ? "저장 중..." : "오늘 기록 저장"}
-      </button>
+      <div style={{ marginBottom: 24 }}>
+        <div style={sectionTitleStyle}>기분</div>
+        <div style={unifiedDivider} />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {MOOD.map((m) => (
+            <button key={m} onClick={() => setSelectedMood(m)} style={buttonStyle(selectedMood === m)}>
+              {m}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 12 }}>
+        <div style={sectionTitleStyle}>기록할 섹션</div>
+        <div style={unifiedDivider} />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {SECTIONS.map((s) => (
+            <button
+              key={s}
+              onClick={() => openPopup(s)}
+              style={buttonStyle(!!sectionTexts[s])}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {activeSection && (
-        <SectionWriteModal
-          open={true}
-          sectionKey={activeSection.key}
-          title={activeSection.label}
-          initialValue={sections[activeSection.key] ?? ""}
-          onSave={value => {
-            setSections(prev => ({
-              ...prev,
-              [activeSection.key]: value,
-            }));
-            openNextSection(activeSection.key);
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.35)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}>
+          <div style={{ background: "#fff", padding: 20, width: 320, borderRadius: 12 }}>
+            <div style={{ fontWeight: 800, marginBottom: 10 }}>
+              {activeSection} 기록
+            </div>
+            <textarea
+              value={popupText}
+              onChange={(e) => setPopupText(e.target.value)}
+              style={{ width: "100%", height: 100, borderRadius: 8, border: "1px solid #ccc", padding: 8 }}
+            />
+            <div style={{ marginTop: 12, textAlign: "right" }}>
+              <button
+                onClick={saveSection}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: "#2C3E50",
+                  color: "#fff",
+                  cursor: "pointer"
+                }}
+              >
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {hasContent && (
+        <button
+          onClick={() => navigate("/library")}
+          style={{
+            position: "fixed",
+            bottom: 80,
+            right: 30,
+            width: 56,
+            height: 56,
+            borderRadius: "50%",
+            border: "none",
+            background: "#2C3E50",
+            color: "#fff",
+            fontSize: 22,
+            cursor: "pointer"
           }}
-          onClose={() => setActiveSection(null)}
-        />
+        >
+          ➜
+        </button>
       )}
     </div>
   );

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>HARU Release Checklist</title>
+<style>
+  body {
+    font-family: serif;
+    background: #F7F6F3;
+    color: #1F1F1F;
+    padding: 40px;
+    max-width: 800px;
+    margin: auto;
+  }
+  h1, h2 {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 6px;
+  }
+  .section {
+    margin-bottom: 30px;
+  }
+  label {
+    display: block;
+    margin: 8px 0;
+    cursor: pointer;
+  }
+  input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.2);
+  }
+  .progress-container {
+    margin: 20px 0;
+  }
+  .progress-bar {
+    height: 20px;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #2C3E50;
+    transition: width 0.3s ease;
+  }
+  .status-box {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+  }
+  .ready {
+    background: #d4edda;
+    color: #155724;
+  }
+  .not-ready {
+    background: #f8d7da;
+    color: #721c24;
+  }
+</style>
+</head>
+<body>
+
+<h1>📜 HARU Release Checklist v1.0</h1>
+
+<div class="progress-container">
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <div id="progressText"></div>
+</div>
+
+<div id="statusBox" class="status-box not-ready">
+  🚫 릴리즈 불가
+</div>
+
+<div class="section">
+<h2>🔐 인증</h2>
+<label><input type="checkbox" data-key="auth1">Email 로그인 정상</label>
+<label><input type="checkbox" data-key="auth2">이메일 인증 차단 작동</label>
+<label><input type="checkbox" data-key="auth3">로그아웃 정상</label>
+</div>
+
+<div class="section">
+<h2>✍ 기록</h2>
+<label><input type="checkbox" data-key="write1">로그인 접근 제한</label>
+<label><input type="checkbox" data-key="write2">선택 → 입력 구조</label>
+<label><input type="checkbox" data-key="write3">uid 포함 저장</label>
+<label><input type="checkbox" data-key="write4">Firestore 반영 확인</label>
+</div>
+
+<div class="section">
+<h2>📚 서재</h2>
+<label><input type="checkbox" data-key="lib1">uid 기반 조회</label>
+<label><input type="checkbox" data-key="lib2">저장 즉시 표시</label>
+<label><input type="checkbox" data-key="lib3">타인 데이터 차단</label>
+</div>
+
+<div class="section">
+<h2>🧠 SAYU</h2>
+<label><input type="checkbox" data-key="sayu1">168시간 제한</label>
+<label><input type="checkbox" data-key="sayu2">5요소 추출 성공</label>
+<label><input type="checkbox" data-key="sayu3">수필 저장 완료</label>
+</div>
+
+<div class="section">
+<h2>💳 구독</h2>
+<label><input type="checkbox" data-key="sub1">30일 무료 계산</label>
+<label><input type="checkbox" data-key="sub2">free 생성 차단</label>
+<label><input type="checkbox" data-key="sub3">free 통계 차단</label>
+</div>
+
+<script>
+const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
+const statusBox = document.getElementById("statusBox");
+
+function updateProgress() {
+  const total = checkboxes.length;
+  let checked = 0;
+
+  checkboxes.forEach(cb => {
+    if (cb.checked) checked++;
+  });
+
+  const percent = Math.round((checked / total) * 100);
+  progressFill.style.width = percent + "%";
+  progressText.innerText = "완료율: " + percent + "%";
+
+  if (checked === total) {
+    statusBox.className = "status-box ready";
+    statusBox.innerText = "✅ 릴리즈 가능";
+  } else {
+    statusBox.className = "status-box not-ready";
+    statusBox.innerText = "🚫 릴리즈 불가";
+  }
+}
+
+checkboxes.forEach(cb => {
+  const key = cb.dataset.key;
+  const saved = localStorage.getItem(key);
+  if (saved === "true") cb.checked = true;
+
+  cb.addEventListener("change", () => {
+    localStorage.setItem(key, cb.checked);
+    updateProgress();
+  });
+});
+
+updateProgress();
+</script>
+
+</body>
+</html>
