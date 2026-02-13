@@ -1,6 +1,7 @@
+cat > src/generateFocusHint.ts << 'EOF'
 import * as functions from "firebase-functions";
 
-export const generateContextLine = functions.https.onCall(
+export const generateFocusHint = functions.https.onCall(
   async (data) => {
     const { content } = data;
 
@@ -12,9 +13,8 @@ export const generateContextLine = functions.https.onCall(
     }
 
     const systemPrompt = `
-너는 일기 내용을 한 줄로 요약하는 조력자다.
-감정의 결을 살려 자연스럽게 정리하라.
-과장하지 말고 담백하게 작성한다.
+너는 사용자의 글에서 더 깊이 생각해볼 지점을 제시하는 조력자다.
+지적하거나 평가하지 말고, 확장 질문 형태로 제시한다.
 한국어로 작성한다.
 `.trim();
 
@@ -27,18 +27,21 @@ export const generateContextLine = functions.https.onCall(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [
-            { parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }
+            {
+              parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }],
+            },
           ],
-          generationConfig: { temperature: 0.4 }
-        })
+          generationConfig: { temperature: 0.4 },
+        }),
       }
     );
 
-    const result = await response.json() as any;
+    const result: any = await response.json();
 
-    const summary =
-      result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+    const hint =
+      result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "";
 
-    return { summary };
+    return { hint };
   }
 );
+EOF

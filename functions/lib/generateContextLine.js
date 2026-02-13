@@ -1,3 +1,4 @@
+cat > src/generateContextLine.ts << 'EOF'
 import * as functions from "firebase-functions";
 
 export const generateContextLine = functions.https.onCall(
@@ -27,18 +28,21 @@ export const generateContextLine = functions.https.onCall(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [
-            { parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }
+            {
+              parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }],
+            },
           ],
-          generationConfig: { temperature: 0.4 }
-        })
+          generationConfig: { temperature: 0.4 },
+        }),
       }
     );
 
-    const result = await response.json() as any;
+    const result: any = await response.json();
 
     const summary =
-      result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "";
 
     return { summary };
   }
 );
+EOF
