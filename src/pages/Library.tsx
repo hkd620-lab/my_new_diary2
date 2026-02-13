@@ -17,21 +17,7 @@ type RecordDoc = {
   sections?: Record<string, string>;
 };
 
-const SECTION_LABELS: Record<string, string> = {
-  achievement: "보람 있었던 일",
-  pride: "자랑하고 싶은 일",
-  impression: "마음에 남은 일",
-  regret: "아쉬웠던 일",
-  memo: "기록",
-};
-
-const SECTION_ORDER = [
-  "achievement",
-  "pride",
-  "impression",
-  "regret",
-  "memo",
-];
+const SECTION_ORDER = ["보람", "자랑", "아쉬움", "감사", "여백"];
 
 function formatDate(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -96,15 +82,12 @@ export default function Library() {
     color: active ? "#ffffff" : "#2C3E50",
     fontSize: 13,
     cursor: "pointer",
-    transition: "all 0.25s ease",
-    fontFamily: "serif",
-    letterSpacing: "0.5px",
   });
 
   return (
     <div
       style={{
-        paddingTop: 40,        // 🔹 기록장과 동일한 상단 여백
+        paddingTop: 40,
         paddingLeft: 20,
         paddingRight: 20,
         paddingBottom: 40,
@@ -115,24 +98,16 @@ export default function Library() {
         minHeight: "100vh",
       }}
     >
-      {/* 날짜 선택 카드 */}
+      {/* 날짜 선택 */}
       <div
         style={{
           background: "#ffffff",
           padding: 18,
           borderRadius: 20,
           marginBottom: 24,
-          boxShadow: "0 6px 20px rgba(0,0,0,0.04)",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 10,
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", gap: 8 }}>
             <button
               style={pillStyle(selectedDate === today)}
@@ -153,25 +128,11 @@ export default function Library() {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            style={{
-              border: "none",
-              borderBottom: "1px solid #2C3E50",
-              padding: "6px 4px",
-              fontSize: 14,
-              fontFamily: "serif",
-              background: "transparent",
-              color: "#2C3E50",
-              outline: "none",
-            }}
           />
         </div>
       </div>
 
       {loading && <div>불러오는 중...</div>}
-
-      {!loading && !record && (
-        <div style={{ opacity: 0.6 }}>선택한 날짜의 기록이 없습니다.</div>
-      )}
 
       {!loading && record && (
         <div
@@ -179,20 +140,12 @@ export default function Library() {
             background: "#ffffff",
             padding: 24,
             borderRadius: 20,
-            boxShadow: "0 6px 20px rgba(0,0,0,0.04)",
           }}
         >
-          <h3 style={{ margin: 0 }}>{record.date}</h3>
+          <h3>{record.date}</h3>
 
-          <div
-            style={{
-              marginTop: 8,
-              fontSize: 14,
-              color: "#555",
-            }}
-          >
-            날씨: {record.weather} · 체감: {record.temperature} · 기분:{" "}
-            {record.mood}
+          <div style={{ marginTop: 8, fontSize: 14 }}>
+            날씨: {record.weather} · 체감: {record.temperature} · 기분: {record.mood}
           </div>
 
           <hr style={{ margin: "16px 0" }} />
@@ -204,16 +157,12 @@ export default function Library() {
 
               return (
                 <div key={key} style={{ marginBottom: 18 }}>
-                  <div
-                    style={{
-                      fontWeight: 600,
-                      fontSize: 14,
-                      marginBottom: 6,
-                    }}
-                  >
-                    {SECTION_LABELS[key]}
+                  <div style={{ fontWeight: 700, marginBottom: 6 }}>
+                    {key}
                   </div>
-                  <div style={{ lineHeight: 1.7 }}>{value}</div>
+                  <div style={{ lineHeight: 1.7 }}>
+                    {value}
+                  </div>
                 </div>
               );
             })}

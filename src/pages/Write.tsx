@@ -51,19 +51,14 @@ export default function Write() {
 
     const user = auth.currentUser;
     if (!user) {
-      console.log("로그인 사용자 없음");
       alert("로그인이 필요합니다.");
       return;
     }
 
-    if (!hasContent) {
-      console.log("내용 없음");
-      return;
-    }
+    if (!hasContent) return;
 
     try {
       setSaving(true);
-      console.log("Firestore 저장 시도");
 
       await addDoc(collection(db, "records"), {
         uid: user.uid,
@@ -95,39 +90,66 @@ export default function Write() {
     fontSize: 13,
   });
 
+  const sectionTitleStyle: React.CSSProperties = {
+    fontWeight: 800,
+    marginBottom: 10,
+    paddingBottom: 6,
+    borderBottom: "1px solid #E5E5E5",
+    fontSize: 14,
+  };
+
   return (
-    <div style={{ padding: "22px 24px 12px 30px", maxWidth: 420, margin: "0 auto", fontFamily: "serif" }}>
+    <div
+      style={{
+        padding: "22px 24px 12px 30px",
+        maxWidth: 420,
+        margin: "0 auto",
+        fontFamily: "serif",
+      }}
+    >
       <h2 style={{ marginBottom: 28, fontSize: 20, fontWeight: 600 }}>
         HARU {today}
       </h2>
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontWeight: 800, marginBottom: 6 }}>날씨</div>
+      <div style={{ marginBottom: 28 }}>
+        <div style={sectionTitleStyle}>날씨</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {WEATHER.map((w) => (
-            <button key={w} onClick={() => setSelectedWeather(w)} style={buttonStyle(selectedWeather === w)}>
+            <button
+              key={w}
+              onClick={() => setSelectedWeather(w)}
+              style={buttonStyle(selectedWeather === w)}
+            >
               {w}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontWeight: 800, marginBottom: 6 }}>체감</div>
+      <div style={{ marginBottom: 28 }}>
+        <div style={sectionTitleStyle}>체감</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {TEMPERATURE.map((t) => (
-            <button key={t} onClick={() => setSelectedTemp(t)} style={buttonStyle(selectedTemp === t)}>
+            <button
+              key={t}
+              onClick={() => setSelectedTemp(t)}
+              style={buttonStyle(selectedTemp === t)}
+            >
               {t}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontWeight: 800, marginBottom: 6 }}>기분</div>
+      <div style={{ marginBottom: 28 }}>
+        <div style={sectionTitleStyle}>기분</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {MOOD.map((m) => (
-            <button key={m} onClick={() => setSelectedMood(m)} style={buttonStyle(selectedMood === m)}>
+            <button
+              key={m}
+              onClick={() => setSelectedMood(m)}
+              style={buttonStyle(selectedMood === m)}
+            >
               {m}
             </button>
           ))}
@@ -135,7 +157,7 @@ export default function Write() {
       </div>
 
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontWeight: 800, marginBottom: 6 }}>기록할 섹션</div>
+        <div style={sectionTitleStyle}>기록할 섹션</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {SECTIONS.map((s) => (
             <button
@@ -150,14 +172,16 @@ export default function Write() {
       </div>
 
       {activeSection && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(0,0,0,0.35)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center"
-        }}>
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.35)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <div style={{ background: "#fff", padding: 20, width: 320 }}>
             <div style={{ fontWeight: 800, marginBottom: 10 }}>
               {activeSection} 기록
@@ -168,9 +192,7 @@ export default function Write() {
               style={{ width: "100%", height: 100 }}
             />
             <div style={{ marginTop: 12, textAlign: "right" }}>
-              <button onClick={saveSection}>
-                저장
-              </button>
+              <button onClick={saveSection}>저장</button>
             </div>
           </div>
         </div>
@@ -191,7 +213,7 @@ export default function Write() {
             background: "#2C3E50",
             color: "#fff",
             fontSize: 22,
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           ➜
