@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import { db } from "../services/firebase";
 
 type RecordDoc = {
@@ -10,10 +11,12 @@ type RecordDoc = {
   temperature?: string;
   mood?: string;
   sections?: Record<string, string>;
+  createdAt?: any;
 };
 
 export default function Library() {
   const auth = getAuth();
+  const navigate = useNavigate();
   const [records, setRecords] = useState<RecordDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"today" | "yesterday" | "custom">("today");
@@ -47,12 +50,23 @@ export default function Library() {
   const today = new Date().toISOString().split("T")[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
 
+  // 필터링된 기록
   const filteredRecords = records.filter((r) => {
     if (filter === "today") return r.date === today;
     if (filter === "yesterday") return r.date === yesterday;
     if (filter === "custom" && selectedDate) return r.date === selectedDate;
     return false;
   });
+
+  // 🔥 같은 날짜 중 가장 최근 기록만 선택
+  const latestRecords: Record<string, RecordDoc> = {};
+  filteredRecords.forEach((record) => {
+    if (!latestRecords[record.date]) {
+      latestRecords[record.date] = record;
+    }
+  });
+
+  const finalRecords = Object.values(latestRecords);
 
   if (loading) return <div style={{ padding: 20 }}>불러오는 중...</div>;
 
@@ -107,13 +121,13 @@ export default function Library() {
         />
       </div>
 
-      {filteredRecords.length === 0 && (
+      {finalRecords.length === 0 && (
         <div style={{ textAlign: "center", padding: 40, color: "#999" }}>
           이 날의 기록이 없습니다.
         </div>
       )}
 
-      {filteredRecords.map((r) => (
+      {finalRecords.map((r) => (
         <div
           key={r.id}
           style={{
@@ -135,6 +149,24 @@ export default function Library() {
                 <strong>{k}</strong>: {v}
               </div>
             ))}
+          
+          <button
+            onClick={() => navigate("/sayu")}
+            style={{
+              marginTop: 12,
+              width: "100%",
+              padding: "10px 0",
+              background: "#2C3E50",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          >
+            → SAYU로 이동
+          </button>
         </div>
       ))}
     </div>
