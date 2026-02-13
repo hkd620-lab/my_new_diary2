@@ -8,6 +8,8 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+
+        {/* 루트 경로 명확히 지정 */}
         <Route
           path="/*"
           element={
