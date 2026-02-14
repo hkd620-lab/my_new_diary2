@@ -13,6 +13,7 @@ const SayuPage = () => {
     
     try {
       const generateAIText = httpsCallable(functions, 'generateAIText');
+      
       const response = await generateAIText();
       const data = response.data as any;
 
